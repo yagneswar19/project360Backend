@@ -102,13 +102,18 @@ public class UserController {
         return ResponseEntity.ok(red);
     }
 
-    @GetMapping("/transactions")
-    public ResponseEntity<List<Transaction>> transactions(Authentication auth){
-        return ResponseEntity.ok(transactionRepository.findTop10ByUserOrderByDateDesc(currentUser(auth)));
-    }
-
-    @GetMapping("/redemptions")
-    public ResponseEntity<List<Redemption>> redemptions(Authentication auth){
-        return ResponseEntity.ok(redemptionRepository.findByUser(currentUser(auth)));
-    }
+  @GetMapping("/transactions")
+public ResponseEntity<List<Transaction>> transactions(Authentication auth) {
+    Long userId = currentUser(auth).getId();
+    return ResponseEntity.ok(
+        transactionRepository.findByUserIdOrderByDateDesc(userId)
+    );
+}
+ @GetMapping("/redemptions")
+public ResponseEntity<List<Redemption>> redemptions(Authentication auth){
+    Long userId = currentUser(auth).getId();
+    return ResponseEntity.ok(
+        redemptionRepository.findByUserIdOrderByDateDesc(userId)
+    );
+}
 }

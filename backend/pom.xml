@@ -28,6 +28,7 @@
         <scope>import</scope>
       </dependency>
 
+      
       <!-- Override the BOM-managed Lombok version (Boot 3.2.x manages 1.18.32) -->
       <dependency>
         <groupId>org.projectlombok</groupId>

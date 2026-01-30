@@ -1,37 +1,118 @@
-
 import React, { useEffect, useState } from 'react'
 import api from '../../api/client'
+import '../../../styles/Offer.css'
 
-export default function Offers(){
+export default function Offers() {
   const [offers, setOffers] = useState([])
   const [me, setMe] = useState(null)
   const [confirm, setConfirm] = useState(null)
-  useEffect(()=>{ (async()=>{ const o = await api.get('/user/offers'); setOffers(o.data); const m = await api.get('/user/me'); setMe(m.data) })() },[])
-  const open = (o)=> setConfirm(o)
-  const close = ()=> setConfirm(null)
-  const redeem = async()=>{ await api.post('/user/redeem',{ offerId:confirm.id, store:'Online' }); setConfirm(null); alert('Redemption confirmed! Check Redemptions page.'); }
+
+  useEffect(() => {
+    (async () => {
+      const o = await api.get('/user/offers'); setOffers(o.data)
+      const m = await api.get('/user/me'); setMe(m.data)
+    })()
+  }, [])
+
+  const open = (o) => setConfirm(o)
+  const close = () => setConfirm(null)
+
+  const redeem = async () => {
+    if (!confirm) return
+    await api.post('/user/redeem', { offerId: confirm.id, store: 'Online' })
+    setConfirm(null)
+    alert('Redemption confirmed! Check Redemptions page.')
+  }
+
   return (
-    <div>
-      <div className="card"><h3>Member Offers</h3></div>
-      <div className="grid cols-3"> 
-        {offers.map(o=> (
-          <div className="card" key={o.id}>
-            <h4>{o.title}</h4>
-            <p>{o.description}</p>
-            <p>Cost: {o.costPoints} pts</p>
-            <button className="button" onClick={()=>open(o)}>Redeem</button>
+    <div className="offers-page">
+      {/* ===== HERO header with bg image and enhanced user/balance styling ===== */}
+      <div className="o-hero">
+        <div className="o-hero-overlay">
+          <div className="o-hero-row">
+            <div>
+              <h3 className="o-hero-title">Member Offers</h3>
+              {me && (
+                <div className="o-hero-sub">
+                  <span className="o-user-chip">
+                    <span className="o-user-dot" />
+                    {me.name}
+                  </span>
+                  <span className="o-sep">•</span>
+                  <span className="o-tier">Tier:&nbsp;<strong>{me.profile?.loyaltyTier || 'Bronze'}</strong></span>
+                </div>
+              )}
+            </div>
+
+            {me && (
+              <div className="o-hero-balance-badge" title="Current Points Balance">
+                <span className="o-balance-label">Balance</span>
+                <span className="o-balance-value">{me.profile?.pointsBalance ?? 0}</span>
+                <span className="o-balance-unit">pts</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ===== Offers grid ===== */}
+      <div className="o-grid">
+        {offers.map(o => (
+          <div className="o-card o-offer" key={o.id}>
+            <div className="o-img-wrap">
+              <img className="o-img" src={o.imageUrl} alt={o.title} />
+            </div>
+            <div className="o-body">
+              <h4 className="o-card-title">{o.title}</h4>
+              <p className="o-desc">{o.description}</p>
+              <div className="o-row">
+                <span className="o-pill">Cost: <strong>{o.costPoints}</strong> pts</span>
+                <button className="o-btn" onClick={() => open(o)} disabled={me?.profile?.pointsBalance < o.costPoints}>Redeem</button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
+
+      {/* ===== Centered modal with image & attractive layout ===== */}
       {confirm && (
-        <div className="card" style={{position:'fixed', right:20, bottom:20, maxWidth:360}}>
-          <h4>Confirm Redemption</h4>
-          <p>{confirm.title}</p>
-          <p>Cost: {confirm.costPoints} pts</p>
-          <div className="flex"><button className="button" onClick={redeem}>Confirm & Redeem</button><button className="button" style={{background:'#666'}} onClick={close}>Cancel</button></div>
+        <div className="o-modal-backdrop" onClick={close} aria-hidden="true">
+          <div
+            className="o-modal-card o-card"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Confirm Redemption"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="o-modal-grid">
+              <div className="o-modal-img-wrap">
+                <img className="o-modal-img" src={confirm.imageUrl} alt={confirm.title} />
+              </div>
+
+              <div className="o-modal-body">
+                <h4 className="o-card-title">{confirm.title}</h4>
+                <p className="o-desc">{confirm.description}</p>
+
+                <div className="o-modal-meta">
+                  <div className="o-meta-row">
+                    <span className="o-meta-label">Cost</span>
+                    <span className="o-meta-value">{confirm.costPoints} pts</span>
+                  </div>
+                  <div className="o-meta-row">
+                    <span className="o-meta-label">Store</span>
+                    <span className="o-meta-value">Online</span>
+                  </div>
+                </div>
+
+                <div className="o-modal-actions">
+                  <button className="o-btn" onClick={redeem}>Confirm &amp; Redeem</button>
+                  <button className="o-btn o-btn-ghost" onClick={close}>Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
-      {me && (<div className="card"><strong>Your balance:</strong> {me.profile?.pointsBalance}</div>)}
     </div>
   )
 }
