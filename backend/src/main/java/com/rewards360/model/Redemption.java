@@ -37,7 +37,7 @@ public class Redemption {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore   // ⬅️ breaks the cycle
+    @JsonIgnore 
 
     private User user;
 }
