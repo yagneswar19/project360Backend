@@ -30,6 +30,8 @@ export default function OffersAdmin(){
           <textarea className="input" placeholder="Short description visible to users" value={o.description} onChange={e=>setO(p=>({...p,description:e.target.value}))} />
           <label>Cost Points</label>
           <input className="input" type="number" placeholder="e.g., 350" value={o.costPoints} onChange={e=>setO(p=>({...p,costPoints:parseInt(e.target.value||0,10)}))} />
+          <label>Tier Level</label>
+          <input className="input" placeholder="e.g., Gold" value={o.tierLevel} onChange={e=>setO(p=>({...p,tierLevel:e.target.value}))} />
           <label>Image URL (optional)</label>
           <input className="input" placeholder="https://..." value={o.imageUrl} onChange={e=>setO(p=>({...p,imageUrl:e.target.value}))} />
           {err && <div className="error" style={{marginTop:6}}>{err}</div>}

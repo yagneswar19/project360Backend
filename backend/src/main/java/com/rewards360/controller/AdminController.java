@@ -2,6 +2,7 @@
 package com.rewards360.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rewards360.dto.OfferAnalyticsDto;
 import com.rewards360.model.Anomaly;
 import com.rewards360.model.AuditLog;
 import com.rewards360.model.Campaign;
@@ -66,4 +68,17 @@ public class AdminController {
     @GetMapping("/fraud/audit")
     @PreAuthorize("hasRole('ADMIN')")
     public List<AuditLog> audit(){ return auditLogRepository.findAll(); }
+     @GetMapping("/analytics") 
+    @PreAuthorize("hasRole('ADMIN')") 
+    public List<OfferAnalyticsDto> analytics() { 
+        return offerRepository.findAll() 
+            .stream() 
+            .map(o -> OfferAnalyticsDto.builder() 
+                    .id(o.getId()) 
+                    .title(o.getTitle()) 
+                    .category(o.getCategory()) 
+                    .costPoints(o.getCostPoints()) 
+                    .build()) 
+.collect(Collectors.toList()); 
+} 
 }
